@@ -1,19 +1,35 @@
 #!/usr/bin/env node
 
+const readline = require('node:readline');
 const { startGradient } = require('./lib');
+
+const DIVIDER = '   ';
+const ANSI_REGEX = /\u001B\[[0-?]*[ -/]*[@-~]/g;
 
 function runExample(text = 'Gradient Example') {
   const states = {
     rainbow: '',
     darkrainbow: '',
+    sunset: '',
   };
+  const supportsDynamicLayout = Boolean(process.stdout.isTTY);
+  let previousLines = 0;
 
   const renderCombined = () => {
     const parts = [
       label('Rainbow', states.rainbow),
       label('DarkRainbow', states.darkrainbow),
+      label('Sunset', states.sunset),
     ];
-    process.stdout.write(`\r${parts.join('   ')}`);
+
+    if (!supportsDynamicLayout) {
+      process.stdout.write(`\r${parts.join(DIVIDER)}`);
+      return;
+    }
+
+    const width = getTerminalWidth();
+    const lines = layoutParts(parts, width);
+    rewriteOutput(lines);
   };
 
   renderCombined();
@@ -32,6 +48,13 @@ function runExample(text = 'Gradient Example') {
     },
   });
 
+  const stopSunset = startGradient('sunset', text, 70, {
+    onFrame(colored) {
+      states.sunset = colored;
+      renderCombined();
+    },
+  });
+
   return () => {
     if (typeof stopRainbow === 'function') {
       stopRainbow();
@@ -39,7 +62,63 @@ function runExample(text = 'Gradient Example') {
     if (typeof stopDark === 'function') {
       stopDark();
     }
+    if (typeof stopSunset === 'function') {
+      stopSunset();
+    }
   };
+
+  function rewriteOutput(lines) {
+    if (previousLines > 0) {
+      readline.cursorTo(process.stdout, 0);
+      if (previousLines > 1) {
+        readline.moveCursor(process.stdout, 0, -(previousLines - 1));
+      }
+      readline.clearScreenDown(process.stdout);
+    }
+    process.stdout.write(lines.join('\n'));
+    previousLines = lines.length;
+  }
+}
+
+function layoutParts(parts, maxWidth) {
+  if (!Number.isFinite(maxWidth) || maxWidth <= 0) {
+    return [parts.join(DIVIDER)];
+  }
+
+  const lines = [];
+  let currentParts = [];
+  let currentWidth = 0;
+
+  parts.forEach((part) => {
+    const partWidth = visibleLength(part);
+    const spaceWidth = currentParts.length > 0 ? DIVIDER.length : 0;
+
+    if (currentParts.length > 0 && currentWidth + spaceWidth + partWidth > maxWidth) {
+      lines.push(currentParts.join(DIVIDER));
+      currentParts = [part];
+      currentWidth = partWidth;
+    } else {
+      if (spaceWidth) {
+        currentWidth += spaceWidth;
+      }
+      currentParts.push(part);
+      currentWidth += partWidth;
+    }
+  });
+
+  if (currentParts.length > 0) {
+    lines.push(currentParts.join(DIVIDER));
+  }
+
+  return lines;
+}
+
+function getTerminalWidth() {
+  return typeof process.stdout.columns === 'number' ? process.stdout.columns : Infinity;
+}
+
+function visibleLength(str) {
+  return str.replace(ANSI_REGEX, '').length;
 }
 
 function label(name, coloredText) {
