@@ -89,7 +89,7 @@ function printHelp(topic) {
       '',
       'Example command:',
       '  clitl example [text]',
-      '  Renders rainbow, darkrainbow, sunset, and loading animations together.'
+      '  Renders rainbow, darkrainbow, sunset, loading, and glitch animations together.'
     );
   } else if (topic === 'help') {
     base.push(

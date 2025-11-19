@@ -97,6 +97,26 @@ test('loading gradient emits frames', async () => {
   });
 });
 
+test('glitch gradient emits frames', async () => {
+  await new Promise((resolve, reject) => {
+    let count = 0;
+    const stop = startGradient('glitch', 'GLITCH', 5, {
+      onFrame() {
+        count += 1;
+        if (count >= 2) {
+          stop();
+          resolve();
+        }
+      },
+    });
+
+    setTimeout(() => {
+      stop();
+      reject(new Error('Glitch gradient timeout'));
+    }, 200);
+  });
+});
+
 test('direction option reverses gradient ordering', async () => {
   const leftFrame = await captureFrame('left');
   const rightFrame = await captureFrame('right');
@@ -118,6 +138,7 @@ test('multiple gradients and example run concurrently without interference', asy
       dark: 0,
       sunset: 0,
       loading: 0,
+      glitch: 0,
       example: 0,
     };
 
@@ -149,6 +170,13 @@ test('multiple gradients and example run concurrently without interference', asy
       },
     });
 
+    const stopGlitch = startGradient('glitch', 'E', 5, {
+      onFrame() {
+        states.glitch += 1;
+        checkDone();
+      },
+    });
+
     const stopExample = runExample('Concurrent');
 
     function checkDone() {
@@ -157,6 +185,7 @@ test('multiple gradients and example run concurrently without interference', asy
         states.dark >= 2 &&
         states.sunset >= 2 &&
         states.loading >= 2 &&
+        states.glitch >= 2 &&
         states.example === 0
       ) {
         states.example = 1;
@@ -164,6 +193,7 @@ test('multiple gradients and example run concurrently without interference', asy
         stopDark();
         stopSunset();
         stopLoading();
+        stopGlitch();
         stopExample();
         resolve();
       }
@@ -174,6 +204,7 @@ test('multiple gradients and example run concurrently without interference', asy
       stopDark();
       stopSunset();
       stopLoading();
+      stopGlitch();
       stopExample();
       reject(new Error('Concurrent gradient test timed out'));
     }, 200);

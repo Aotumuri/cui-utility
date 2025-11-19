@@ -12,6 +12,7 @@ function runExample(text = 'Gradient Example') {
     darkrainbow: '',
     sunset: '',
     loading: '',
+    glitch: '',
   };
   const supportsDynamicLayout = Boolean(process.stdout.isTTY);
   let previousLines = 0;
@@ -22,6 +23,7 @@ function runExample(text = 'Gradient Example') {
       label('DarkRainbow', states.darkrainbow),
       label('Sunset', states.sunset),
       label('Loading', states.loading),
+      label('Glitch', states.glitch),
     ];
 
     if (!supportsDynamicLayout) {
@@ -64,6 +66,13 @@ function runExample(text = 'Gradient Example') {
     },
   });
 
+  const stopGlitch = startGradient('glitch', text, 55, {
+    onFrame(colored) {
+      states.glitch = colored;
+      renderCombined();
+    },
+  });
+
   return () => {
     if (typeof stopRainbow === 'function') {
       stopRainbow();
@@ -76,6 +85,9 @@ function runExample(text = 'Gradient Example') {
     }
     if (typeof stopLoading === 'function') {
       stopLoading();
+    }
+    if (typeof stopGlitch === 'function') {
+      stopGlitch();
     }
   };
 
