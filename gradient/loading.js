@@ -7,6 +7,7 @@ module.exports = function loading(text, speed, options = {}) {
   const highlightLength = highlightFns.length;
   const onFrame = options.onFrame || defaultWriter;
   let frame = 0;
+  const direction = options.direction === 'right' ? 'right' : 'left';
 
   const render = () => {
     const chars = text.split('');
@@ -16,7 +17,8 @@ module.exports = function loading(text, speed, options = {}) {
         if (char === ' ') {
           return ' ';
         }
-        const offset = (frame + index) % cycleLength;
+        const mappedIndex = direction === 'right' ? chars.length - 1 - index : index;
+        const offset = (frame + mappedIndex + cycleLength) % cycleLength;
         if (offset < highlightLength) {
           return highlightFns[offset](char);
         }

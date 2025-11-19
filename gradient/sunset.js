@@ -12,15 +12,17 @@ module.exports = function sunset(text, speed, options = {}) {
   const totalSteps = palette.length * waveLength;
   let frame = 0;
   const onFrame = options.onFrame || defaultWriter;
+  const reverse = options.direction === 'right';
 
   const render = () => {
-    const colored = text
-      .split('')
+    const chars = text.split('');
+    const colored = chars
       .map((char, index) => {
         if (char === ' ') {
           return ' ';
         }
-        const position = (frame + index) % totalSteps;
+        const mappedIndex = reverse ? chars.length - 1 - index : index;
+        const position = (frame + mappedIndex) % totalSteps;
         const paletteIndex = Math.floor(position / waveLength);
         const color = palette[paletteIndex];
         return chalk.hsl(color.h, color.s, color.l)(char);

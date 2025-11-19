@@ -6,15 +6,18 @@ module.exports = function darkRainbow(text, speed, options = {}) {
   const lightness = 35;
   let frame = 0;
   const onFrame = options.onFrame || defaultWriter;
+  const reverse = options.direction === 'right';
 
   const render = () => {
-    const colored = text
-      .split('')
+    const chars = text.split('');
+    const colored = chars
       .map((char, index) => {
         if (char === ' ') {
           return ' ';
         }
-        const hue = (frame + index * frameStep) % 360;
+        const mappedIndex = reverse ? chars.length - 1 - index : index;
+        const offset = frame + mappedIndex * frameStep;
+        const hue = ((offset % 360) + 360) % 360;
         return chalk.hsl(hue, saturation, lightness)(char);
       })
       .join('');

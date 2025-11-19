@@ -1,3 +1,5 @@
+process.env.FORCE_COLOR = '1';
+
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
@@ -95,6 +97,20 @@ test('loading gradient emits frames', async () => {
   });
 });
 
+test('direction option reverses gradient ordering', async () => {
+  const leftFrame = await captureFrame('left');
+  const rightFrame = await captureFrame('right');
+
+  const firstLeft = firstColorCode(leftFrame);
+  const lastLeft = lastColorCode(leftFrame);
+  const firstRight = firstColorCode(rightFrame);
+  const lastRight = lastColorCode(rightFrame);
+
+  assert.ok(firstLeft && lastLeft && firstRight && lastRight, 'color codes should exist');
+  assert.strictEqual(firstLeft, lastRight);
+  assert.strictEqual(lastLeft, firstRight);
+});
+
 test('multiple gradients and example run concurrently without interference', async () => {
   await new Promise((resolve, reject) => {
     const states = {
@@ -163,3 +179,45 @@ test('multiple gradients and example run concurrently without interference', asy
     }, 200);
   });
 });
+
+async function captureFrame(direction) {
+  return new Promise((resolve) => {
+    let stopFn;
+    let shouldStopAfterInit = false;
+    let resolved = false;
+    const options = {
+      direction,
+      onFrame(colored) {
+        if (resolved) {
+          return;
+        }
+        resolved = true;
+        resolve(colored);
+        if (stopFn) {
+          stopFn();
+        } else {
+          shouldStopAfterInit = true;
+        }
+      },
+    };
+    stopFn = startGradient('rainbow', 'ABCD', 50, options);
+    if (shouldStopAfterInit && stopFn) {
+      stopFn();
+    }
+  });
+}
+
+const COLOR_REGEX = /\u001B\[38;2;[0-9]+;[0-9]+;[0-9]+m/g;
+
+function firstColorCode(str) {
+  const matches = str.match(COLOR_REGEX);
+  return matches ? matches[0] : null;
+}
+
+function lastColorCode(str) {
+  const matches = str.match(COLOR_REGEX);
+  if (!matches || matches.length === 0) {
+    return null;
+  }
+  return matches[matches.length - 1];
+}
