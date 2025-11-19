@@ -75,12 +75,33 @@ test('sunset gradient emits frames', async () => {
   });
 });
 
+test('loading gradient emits frames', async () => {
+  await new Promise((resolve, reject) => {
+    let count = 0;
+    const stop = startGradient('loading', 'Loading', 5, {
+      onFrame() {
+        count += 1;
+        if (count >= 2) {
+          stop();
+          resolve();
+        }
+      },
+    });
+
+    setTimeout(() => {
+      stop();
+      reject(new Error('Loading gradient timeout'));
+    }, 200);
+  });
+});
+
 test('multiple gradients and example run concurrently without interference', async () => {
   await new Promise((resolve, reject) => {
     const states = {
       rainbow: 0,
       dark: 0,
       sunset: 0,
+      loading: 0,
       example: 0,
     };
 
@@ -105,6 +126,13 @@ test('multiple gradients and example run concurrently without interference', asy
       },
     });
 
+    const stopLoading = startGradient('loading', 'D', 5, {
+      onFrame() {
+        states.loading += 1;
+        checkDone();
+      },
+    });
+
     const stopExample = runExample('Concurrent');
 
     function checkDone() {
@@ -112,12 +140,14 @@ test('multiple gradients and example run concurrently without interference', asy
         states.rainbow >= 2 &&
         states.dark >= 2 &&
         states.sunset >= 2 &&
+        states.loading >= 2 &&
         states.example === 0
       ) {
         states.example = 1;
         stopRainbow();
         stopDark();
         stopSunset();
+        stopLoading();
         stopExample();
         resolve();
       }
@@ -127,6 +157,7 @@ test('multiple gradients and example run concurrently without interference', asy
       stopRainbow();
       stopDark();
       stopSunset();
+      stopLoading();
       stopExample();
       reject(new Error('Concurrent gradient test timed out'));
     }, 200);

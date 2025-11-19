@@ -2,6 +2,7 @@ const gradientHandlers = {
   rainbow: require('./gradient/rainbow'),
   darkrainbow: require('./gradient/darkrainbow'),
   sunset: require('./gradient/sunset'),
+  loading: require('./gradient/loading'),
 };
 
 function startGradient(effect, text, speed = 80, options = {}) {
