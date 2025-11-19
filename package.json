@@ -1,8 +1,8 @@
 {
-  "name": "cli-utilities",
+  "name": "clitl",
   "version": "0.0.1",
   "bin": {
-    "cli-utilities": "index.js"
+    "clitl": "index.js"
   },
   "author": "aotumuri",
   "license": "MIT",

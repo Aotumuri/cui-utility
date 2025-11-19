@@ -59,13 +59,13 @@ function printHelp() {
   console.log(
     [
       'Usage:',
-      '  cli-utilities gradient <rainbow|darkrainbow> [text] [--speed <ms>]',
-      '  cli-utilities example [text]',
+      '  clitl gradient <rainbow|darkrainbow> [text] [--speed <ms>]',
+      '  clitl example [text]',
       '',
       'Examples:',
-      '  cli-utilities gradient rainbow "Hello World" --speed 50',
-      '  cli-utilities gradient darkrainbow "Night Mode"',
-      '  cli-utilities example "Side by side demo"',
+      '  clitl gradient rainbow "Hello World" --speed 50',
+      '  clitl gradient darkrainbow "Night Mode"',
+      '  clitl example "Side by side demo"',
     ].join('\n')
   );
 }
