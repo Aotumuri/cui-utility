@@ -1,6 +1,6 @@
 {
   "name": "clitl",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "bin": {
     "clitl": "index.js"
   },
@@ -10,7 +10,8 @@
     "test": "node --test"
   },
   "dependencies": {
-    "chalk": "^4.1.2"
+    "chalk": "^4.1.2",
+    "update-notifier": "^7.3.1"
   },
   "directories": {
     "test": "test"

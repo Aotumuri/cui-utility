@@ -1,5 +1,10 @@
 #!/usr/bin/env node
 
+// Enable update notifications
+import updateNotifier from 'update-notifier';
+import pkg from './package.json' assert { type: 'json' };
+updateNotifier({ pkg }).notify();
+
 const { startGradient, gradients } = require('./lib');
 const runExample = require('./example');
 
