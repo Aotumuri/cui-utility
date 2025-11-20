@@ -109,7 +109,7 @@ function printHelp(topic) {
     base.push(
       '',
       'Version command:',
-      '  clitl version [--check-updates]',
+      '  clitl version [--check-updates|-u]',
       '  Prints the current version or checks npm for updates.'
     );
   } else if (topic === 'help') {
@@ -156,7 +156,7 @@ function parseArgs(args) {
       i += 1;
     } else if (arg.startsWith('--direction=')) {
       options.direction = arg.split('=')[1];
-    } else if (arg === '--check-updates') {
+    } else if (arg === '--check-updates' || arg === '-u') {
       options.checkUpdates = true;
     } else {
       positional.push(arg);
