@@ -191,9 +191,13 @@ function printVersion() {
 async function checkForUpdates() {
   let notifier;
   try {
-    const mod = await import('update-notifier');
-    const factory = mod.default || mod;
-    notifier = factory({ pkg, shouldNotifyInNpmScript: true });
+    const mod = require('update-notifier');
+    const updateNotifier = mod.default || mod;
+    notifier = updateNotifier({
+      pkg,
+      shouldNotifyInNpmScript: true,
+      updateCheckInterval: 0,
+    });
   } catch (error) {
     console.error('Unable to load update-notifier:', error.message);
     process.exit(1);
